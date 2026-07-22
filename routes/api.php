@@ -21,6 +21,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/public/cohorts', [PublicScheduleController::class, 'getCohorts']);
 Route::get('/public/schedule', [PublicScheduleController::class, 'getStudentSchedule']);
 Route::get('/public/lecturer-schedule', [PublicScheduleController::class, 'getLecturerSchedule']);
+Route::get('/public/calendar-days', [PublicScheduleController::class, 'getCalendarDays']);
+Route::get('/public/lecturers/{id}', [PublicScheduleController::class, 'getLecturer']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

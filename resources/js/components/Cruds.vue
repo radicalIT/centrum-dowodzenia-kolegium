@@ -214,6 +214,8 @@
               <td class="editable-cell">{{ item.first_name }} <span class="edit-icon">✎</span></td>
               <td class="editable-cell">{{ item.last_name }} <span class="edit-icon">✎</span></td>
               <td class="actions-cell">
+                <button @click.stop="copyLecturerLink(item)" class="btn-secondary"
+                  style="background-color: #2c3e50; color: white; border: none;">Skopiuj link</button>
                 <button @click.stop="exportLecturerPDF(item)" class="btn-primary"
                   style="background-color: #5d4037;">PDF</button>
                 <button @click.stop="deleteItem('lecturers', item.id)" class="btn-danger">Usuń</button>
@@ -812,8 +814,27 @@ const deleteItem = async (endpoint, id) => {
     fetchData();
   }
 };
+// --- KOPIOWANIE LINKU WYKŁADOWCY ---
+const copyLecturerLink = async (lecturer) => {
+  if (!lecturer.encrypted_id) {
+    alert("Brak zaszyfrowanego ID. Upewnij się, że zaktualizowano model Lecturer na backendzie.");
+    return;
+  }
 
-// --- EKSPORT DO PDF ---
+  // Zbudowanie pełnego linku bazującego na aktualnej domenie
+  const url = `${window.location.origin}/plan-wykladowcy?id=${lecturer.encrypted_id}`;
+
+  try {
+    await navigator.clipboard.writeText(url);
+    alert(`Pomyślnie skopiowano link do schowka dla: ${lecturer.title} ${lecturer.first_name} ${lecturer.last_name}`);
+  } catch (err) {
+    console.error('Błąd kopiowania do schowka:', err);
+    
+    // Fallback dla starszych przeglądarek (jeśli API Clipboard by nie zadziałało)
+    prompt("Twój link do planu (skopiuj ręcznie - Ctrl+C):", url);
+  }
+};
+
 // --- EKSPORT DO PDF ---
 const exportGridToPDF = () => {
   const element = document.getElementById('preview-grid-wrapper');

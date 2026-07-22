@@ -1,73 +1,108 @@
 <template>
     <div class="public-container">
-        <header class="schedule-header">
-            <div class="header-titles">
-                <h2>Plan Zajęć</h2>
-                <p class="subtitle">Widok dla studentów</p>
-            </div>
-            
-            <!-- Kafelki roczników -->
+        <!-- Panel nawigacji (nie znika) -->
+        <header class="no-print">
+            <h2 class="page-title">Plan Zajęć (Student)</h2>
             <div class="cohort-tiles">
-                <button 
-                    :class="['tile', { active: selectedCohort === '' }]" 
-                    @click="selectCohort('')"
-                >
+                <button :class="['tile', { active: selectedCohort === '' }]" @click="selectCohort('')">
                     Wszystkie roczniki
                 </button>
-                <button 
-                    v-for="cohort in cohorts" 
-                    :key="cohort.id"
-                    :class="['tile', { active: selectedCohort === cohort.id }]" 
-                    @click="selectCohort(cohort.id)"
-                >
+                <button v-for="cohort in cohorts" :key="cohort.id"
+                    :class="['tile', { active: selectedCohort === cohort.id }]" @click="selectCohort(cohort.id)">
                     {{ cohort.name }}
                 </button>
             </div>
+            <div class="week-navigation mt-3">
+                <button class="nav-btn" @click="changeWeek(-1)">&#8592; Poprzedni tydzień</button>
+                <span class="week-label">Tydzień: <strong>{{ weekStartStr }}</strong> — <strong>{{ weekEndStr }}</strong></span>
+                <button class="nav-btn" @click="changeWeek(1)">Następny tydzień &#8594;</button>
+            </div>
         </header>
 
-        <div class="week-navigation">
-            <button class="nav-btn" @click="changeWeek(-1)">&#8592; Poprzedni tydzień</button>
-            <span class="week-label">Tydzień: <strong>{{ weekStartStr }}</strong> — <strong>{{ weekEndStr }}</strong></span>
-            <button class="nav-btn" @click="changeWeek(1)">Następny tydzień &#8594;</button>
-        </div>
-
-        <div class="table-responsive">
-            <!-- Tabela w stylu wydruku z SchedulePlanner -->
-            <table class="print-table">
+        <!-- Odwzorowanie układu PDF -->
+        <div class="pdf-wrapper">
+            <table class="export-schedule-table">
                 <thead>
                     <tr>
-                        <th class="col-date">Data</th>
-                        <th v-for="block in maxBlocks" :key="block" class="col-block">
-                            Blok {{ block }}
-                        </th>
+                        <th style="width: 15%;">Data</th>
+                        <th style="width: 15%;">Rocznik</th>
+                        <th style="width: 35%;">Blok 1 (8:15-9:50)</th>
+                        <th style="width: 35%;">Blok 2 (10:00-11:35)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-if="loading">
-                        <td :colspan="maxBlocks + 1" class="text-center loading-cell">Ładowanie danych...</td>
+                        <td colspan="4" class="status-message">Ładowanie danych...</td>
                     </tr>
-                    <tr v-else-if="schedule.length === 0">
-                        <td :colspan="maxBlocks + 1" class="text-center empty-cell">Brak zaplanowanych zajęć w tym tygodniu.</td>
+                    <tr v-else-if="schedule.length === 0 && !loading">
+                        <td colspan="4" class="status-message">Brak zaplanowanych zajęć w tym tygodniu.</td>
                     </tr>
-                    <tr v-for="day in weekDays" :key="day" v-else>
-                        <td class="cell-date">
-                            <strong>{{ getDayName(day) }}</strong><br>
-                            <small>{{ day }}</small>
-                        </td>
-                        <td v-for="block in maxBlocks" :key="block" class="cell-entry">
-                            <div class="entries-wrapper">
-                                <div 
-                                    v-for="entry in getEntries(day, block)" 
-                                    :key="entry.id" 
-                                    class="entry-card"
-                                >
-                                    <div class="entry-subject">{{ entry.subject.name }}</div>
-                                    <div v-if="!selectedCohort" class="entry-badge">{{ entry.cohort.name }}</div>
-                                    <div class="entry-lecturer">{{ entry.lecturer.name }}</div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
+
+                    <template v-else v-for="day in weekDays" :key="day.date">
+                        <tr v-for="(cohort, cIndex) in displayCohorts" :key="'export-' + day.date + '-' + cohort.id">
+                            
+                            <!-- KOMÓRKA DATY (Scalona w pionie dla wszystkich roczników) -->
+                            <td v-if="cIndex === 0" :rowspan="displayCohorts.length" class="date-cell">
+                                <strong>{{ getDayName(day.date) }}</strong><br>
+                                <span>{{ day.date }}</span>
+                            </td>
+
+                            <!-- KOMÓRKA ROCZNIKA (Wyświetlana ZAWSZE) -->
+                            <td class="cohort-cell">
+                                {{ cohort.name }}
+                            </td>
+
+                            <!-- CAŁY DZIEŃ WOLNY DLA WSZYSTKICH (GLOBALNE) -->
+                            <td v-if="isDayCompletelyFree(day.date) && cIndex === 0" 
+                                :rowspan="displayCohorts.length" 
+                                colspan="2" 
+                                class="free-day-cell">
+                                {{ getHolidayName(day.date) }}
+                            </td>
+
+                            <!-- DZIEŃ Z ZAJĘCIAMI LUB ŚWIĘTAMI DEDYKOWANYMI ROCZNIKOM -->
+                            <template v-else-if="!isDayCompletelyFree(day.date)">
+                                
+                                <!-- INDYWIDUALNE ŚWIĘTO ROCZNIKA (colspan=2 tylko dla tego wiersza) -->
+                                <td v-if="isCohortHoliday(day.date, cohort.id)" 
+                                    colspan="2" class="free-day-cell">
+                                    {{ getCohortHolidayName(day.date, cohort.id) }}
+                                </td>
+
+                                <!-- STANDARDOWE ZAJĘCIA (LUB ZWYKŁE WOLNE OKIENKA) -->
+                                <template v-else>
+                                    <!-- BLOK 1 -->
+                                    <td v-if="shouldRenderBlock(day.date, cIndex, 1)"
+                                        :rowspan="getBlockRowspan(day.date, cIndex, 1)" class="content-cell">
+
+                                        <span v-for="(entry, index) in getEntries(day.date, cohort.id, 1)"
+                                            :key="'e1-' + entry.id">
+                                            {{ entry.subject ? entry.subject.name : 'Brak danych' }}
+                                            <template v-if="index !== getEntries(day.date, cohort.id, 1).length - 1"><br></template>
+                                        </span>
+
+                                        <span v-if="getEntries(day.date, cohort.id, 1).length === 0" class="empty-block">
+                                        </span>
+                                    </td>
+
+                                    <!-- BLOK 2 -->
+                                    <td v-if="shouldRenderBlock(day.date, cIndex, 2)"
+                                        :rowspan="getBlockRowspan(day.date, cIndex, 2)" class="content-cell">
+
+                                        <span v-for="(entry, index) in getEntries(day.date, cohort.id, 2)"
+                                            :key="'e2-' + entry.id">
+                                            {{ entry.subject ? entry.subject.name : 'Brak danych' }}
+                                            <template v-if="index !== getEntries(day.date, cohort.id, 2).length - 1"><br></template>
+                                        </span>
+
+                                        <span v-if="getEntries(day.date, cohort.id, 2).length === 0" class="empty-block">                                            
+                                        </span>
+                                    </td>
+                                </template>
+
+                            </template>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
         </div>
@@ -82,20 +117,87 @@ const cohorts = ref([]);
 const selectedCohort = ref('');
 const schedule = ref([]);
 const loading = ref(false);
-
 const currentDate = ref(new Date());
-const maxBlocks = 7; // Możesz dostosować do maksymalnej liczby bloków w dniu
 
-// --- Funkcje Dat ---
+const displayCohorts = computed(() => {
+    if (selectedCohort.value) {
+        return cohorts.value.filter(c => c.id === selectedCohort.value);
+    }
+    return cohorts.value;
+});
+
+const calendarDays = ref([]);
+
+const fetchCalendarDays = async () => {
+    try {
+        const response = await axios.get('/api/public/calendar-days', {
+            params: { start_date: weekStartStr.value, end_date: weekEndStr.value }
+        });
+        calendarDays.value = response.data;
+    } catch (error) {
+        console.error("Błąd pobierania dni kalendarza", error);
+    }
+};
+
+// Pobiera globalną nazwę święta
+const getHolidayName = (dateStr) => {
+    const dayData = calendarDays.value.find(d => d.date === dateStr && !d.cohort_id && !d.cohortids && !d.cohort_ids);
+    return dayData ? dayData.name : 'WOLNE';
+};
+
+// Sprawdza, czy w danym dniu nie ma ŻADNYCH zajęć dla wszystkich i czy NIE MA świąt dedykowanych pojedynczym rocznikom
+const isDayCompletelyFree = (date) => {
+    const noClassesAtAll = schedule.value.filter(e => e.date === date).length === 0;
+    const hasSpecificHolidays = calendarDays.value.some(d => d.date === date && (d.cohort_id || d.cohortids || d.cohort_ids));
+    return noClassesAtAll && !hasSpecificHolidays;
+};
+
+// --- LOGIKA ŚWIĄT DEDYKOWANYCH KONKRETNYM ROCZNIKOM ---
+
+const getCohortHolidayName = (dateStr, cohortId) => {
+    const dayData = calendarDays.value.find(d => {
+        if (d.date !== dateStr) return false;
+        
+        const cId = d.cohort_id;
+        const cIds = d.cohortids || d.cohort_ids;
+        
+        // Jeśli jest to przypisane bezpośrednio do rocznika (zależnie od tego jak zwraca to Twój backend)
+        if (cId && String(cId) === String(cohortId)) return true;
+        if (cIds) {
+            if (Array.isArray(cIds) && cIds.map(String).includes(String(cohortId))) return true;
+            if (typeof cIds === 'string' && cIds.split(',').map(s=>s.trim()).includes(String(cohortId))) return true;
+        }
+        
+        // Ewentualnie łapiemy święto globalne, jeśli reszta roczników np. odrabia zajęcia
+        if (!cId && !cIds) return true;
+
+        return false;
+    });
+    return dayData ? dayData.name : null;
+};
+
+const isCohortCompletelyFree = (dateStr, cohortId) => {
+    return schedule.value.filter(e => e.date === dateStr && e.cohort_id === cohortId).length === 0;
+};
+
+const isCohortHoliday = (dateStr, cohortId) => {
+    return isCohortCompletelyFree(dateStr, cohortId) && getCohortHolidayName(dateStr, cohortId) !== null;
+};
+
+
+// --- DATY I DNI ---
+
 const getMonday = (d) => {
     const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
 };
-const formatDate = (date) => date.toISOString().split('T')[0];
+const formatDate = (date) => {
+    const offset = date.getTimezoneOffset() * 60000;
+    return (new Date(date - offset)).toISOString().split('T')[0];
+};
 
 const getDayName = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('pl-PL', { weekday: 'long' });
+    return new Date(dateStr).toLocaleDateString('pl-PL', { weekday: 'long' });
 };
 
 const weekStart = computed(() => getMonday(new Date(currentDate.value)));
@@ -108,18 +210,17 @@ const weekEnd = computed(() => {
 const weekStartStr = computed(() => formatDate(weekStart.value));
 const weekEndStr = computed(() => formatDate(weekEnd.value));
 
-// Generowanie tablicy dni dla aktualnego tygodnia (Pon-Niedz)
 const weekDays = computed(() => {
     const days = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 5; i++) {
         const d = new Date(weekStart.value);
         d.setDate(d.getDate() + i);
-        days.push(formatDate(d));
+        days.push({ date: formatDate(d) });
     }
     return days;
 });
 
-// --- Pobieranie Danych ---
+
 const fetchCohorts = async () => {
     try {
         const response = await axios.get('/api/public/cohorts');
@@ -147,7 +248,6 @@ const fetchSchedule = async () => {
     }
 };
 
-// --- Logika Widoku ---
 const selectCohort = (id) => {
     selectedCohort.value = id;
     fetchSchedule();
@@ -158,155 +258,192 @@ const changeWeek = (direction) => {
     newDate.setDate(newDate.getDate() + (direction * 7));
     currentDate.value = newDate;
     fetchSchedule();
+    fetchCalendarDays();
 };
 
-const getEntries = (date, blockNumber) => {
+const getEntries = (date, cohortId, blockNum) => {
     return schedule.value.filter(
-        e => e.calendar_day.date === date && e.block_number === blockNumber
+        e => e.date === date && e.cohort_id === cohortId && String(e.block) === String(blockNum)
     );
+};
+
+// --- LOGIKA GRUPOWANIA ZAJĘĆ (ROWSPAN) ---
+
+const getBlockFingerprint = (date, cohortId, blockNum) => {
+    // Odcinamy możliwość łączenia jeśli dany rocznik ma tutaj indywidualne święto (zapobiega to błędom w rowspanie okienek u sąsiadów)
+    if (isCohortHoliday(date, cohortId)) return `HOLIDAY_${cohortId}`;
+    
+    const entries = getEntries(date, cohortId, blockNum);
+    if (entries.length === 0) return `EMPTY_${cohortId}`;
+    
+    return entries.map(e => e.subject ? e.subject.id : 'unknown').sort().join(',');
+};
+
+const getBlockRowspan = (date, cIndex, blockNum) => {
+    let span = 1;
+    const currentPrint = getBlockFingerprint(date, displayCohorts.value[cIndex].id, blockNum);
+    for (let i = cIndex + 1; i < displayCohorts.value.length; i++) {
+        if (getBlockFingerprint(date, displayCohorts.value[i].id, blockNum) === currentPrint) span++;
+        else break; 
+    }
+    return span;
+};
+
+const shouldRenderBlock = (date, cIndex, blockNum) => {
+    if (cIndex === 0) return true;
+    const currentPrint = getBlockFingerprint(date, displayCohorts.value[cIndex].id, blockNum);
+    const prevPrint = getBlockFingerprint(date, displayCohorts.value[cIndex - 1].id, blockNum);
+    return currentPrint !== prevPrint; 
 };
 
 onMounted(() => {
     fetchCohorts();
     fetchSchedule();
+    fetchCalendarDays();
 });
 </script>
 
 <style scoped>
 .public-container {
-    max-width: 1400px;
-    margin: 2rem auto;
-    background-color: var(--color-surface, #ffffff);
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    padding: 1rem;
+    font-family: var(--font-text, Arial, sans-serif);
 }
 
-.schedule-header {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--color-border, #eaeaea);
-    padding-bottom: 1.5rem;
+.page-title {
+    font-family: var(--font-heading, inherit);
+    color: var(--color-primary, #2c3e50);
 }
 
-.header-titles h2 { margin: 0; color: var(--color-primary, #1a1a1a); }
-.subtitle { margin: 4px 0 0 0; color: #666; font-size: 0.95rem; }
-
-/* Kafelki Roczników */
 .cohort-tiles {
     display: flex;
+    gap: 10px;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    margin-top: 10px;
 }
 
 .tile {
-    background-color: #f5f5f5;
-    border: 1px solid var(--color-border, #ddd);
-    color: #444;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 500;
+    padding: 8px 16px;
+    border: 1px solid var(--color-border, #ccc);
+    background: var(--color-surface-muted, #eee);
     cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.tile:hover {
-    background-color: #e9e9e9;
+    border-radius: 4px;
+    font-family: var(--font-text, inherit);
 }
 
 .tile.active {
-    background-color: var(--color-primary, #2c3e50);
+    background: var(--color-primary, #2c3e50);
+    color: white;
     border-color: var(--color-primary, #2c3e50);
-    color: #ffffff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
-/* Nawigacja Tygodnia */
 .week-navigation {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #fafafa;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--color-border, #eaeaea);
+    background: var(--color-surface, #fafafa);
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border, #ddd);
+}
+
+.mt-3 {
+    margin-top: 1rem;
 }
 
 .nav-btn {
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
+    padding: 6px 12px;
     cursor: pointer;
-    font-weight: 500;
-    transition: background 0.2s;
+    font-family: var(--font-text, inherit);
 }
 
-.nav-btn:hover { background: #f0f0f0; }
-.week-label { font-size: 1.05rem; color: #333; }
+.pdf-wrapper {
+    background: var(--color-surface, white);
+    max-width: 1000px;
+    margin: 2rem auto;
+    box-sizing: border-box;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
 
-/* Tabela Wydruku (Print-style) */
-.table-responsive { overflow-x: auto; }
-
-.print-table {
+.export-schedule-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
+    font-family: var(--font-text, Arial, sans-serif);
 }
 
-.print-table th, .print-table td {
-    border: 1px solid var(--color-border, #ddd);
-    padding: 0.75rem;
-    vertical-align: top;
+.export-schedule-table th,
+.export-schedule-table td {
+    border: 1px solid var(--color-border, #000);
+    padding: 10px 8px;
+    vertical-align: middle;
+    color: var(--color-text, #333);
 }
 
-.print-table th {
-    background-color: var(--color-primary, #2c3e50);
-    color: #fff;
-    font-weight: 600;
+.export-schedule-table th {
+    background-color: var(--color-surface-muted, #f4f4f4);
+    font-weight: bold;
     text-align: center;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
+    font-family: var(--font-heading, inherit);
 }
 
-.col-date { width: 120px; }
-.cell-date {
-    background-color: #f9f9f9;
+.status-message {
     text-align: center;
+    padding: 2rem;
+}
+
+.date-cell {
+    background: var(--color-surface-muted, #f4f4f4);
+    text-align: center;
+}
+
+.date-cell strong {
+    font-size: 1.1em;
     text-transform: capitalize;
+    font-family: var(--font-heading, inherit);
 }
 
-.entries-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.date-cell span {
+    color: var(--color-text-muted, #555);
+    font-size: 0.9em;
 }
 
-.entry-card {
-    background: #fff;
-    border: 1px solid #eee;
-    border-left: 3px solid var(--color-secondary, #3498db);
-    padding: 6px 8px;
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+.cohort-cell {
+    font-weight: bold;
+    background: var(--color-surface, #fff);
+    text-align: center;
+    font-family: var(--font-heading, inherit);
 }
 
-.entry-subject { font-weight: 700; color: #222; margin-bottom: 2px; line-height: 1.2; }
-.entry-badge { 
-    display: inline-block; 
-    background: #eee; 
-    color: #555; 
-    font-size: 0.75rem; 
-    padding: 2px 6px; 
-    border-radius: 4px; 
-    margin-bottom: 2px;
+.content-cell {
+    background: var(--color-surface, #fff);
+    text-align: center;
 }
-.entry-lecturer { font-size: 0.8rem; color: #666; font-style: italic; }
 
-.text-center { text-align: center; padding: 3rem !important; color: #666; }
+.empty-block {
+    color: var(--color-text-muted, #777);
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.free-day-cell {
+    background: var(--color-surface-muted, #f4f4f4);
+    text-align: center;
+    font-weight: bold;
+    color: var(--color-text-muted, #555);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .pdf-wrapper {
+        box-shadow: none !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        border: none !important;
+    }
+}
 </style>
