@@ -1,0 +1,420 @@
+WRZESIEŃ |  |                             | PAŹDZIERNIK |  |  | LISTOPAD |  |  | GRUDZIEŃ |  |  | STYCZEŃ |  |  |
+1  | Wt  |                                | 1 | Cz |  | 1 | Nd | Wszystkich Świętych | 1 | Wt |  | 1 | Pt | Świętej Bożej Rodzicielki
+2  | Śr  |                                | 2 | Pt |  | 2 | Pn | Dzień zaduszny | 2 | Śr |  | 2 | Sb | 
+3  | Cz  |                                | 3 | Sb |  | 3 | Wt |  | 3 | Cz |  | 3 | Nd | 
+4  | Pt  |                                | 4 | Nd |  | 4 | Śr |  | 4 | Pt |  | 4 | Pn | 
+5  | Sb  |                                | 5 | Pn |  | 5 | Cz |  | 5 | Sb |  | 5 | Wt | 
+6  | Nd  |                                | 6 | Wt |  | 6 | Pt |  | 6 | Nd |  | 6 | Śr | Objawienie Pańskie
+7  | Pn  |                                | 7 | Śr |  | 7 | Sb |  | 7 | Pn |  | 7 | Cz | 
+8  | Wt  |                                | 8 | Cz | Immatrykulacja AKW | 8 | Nd |  | 8 | Wt |  | 8 | Pt | 
+9  | Śr  |                                | 9 | Pt |  | 9 | Pn |  | 9 | Śr |  | 9 | Sb | 
+10 | Cz  |                                | 10 | Sb |  | 10 | Wt |  | 10 | Cz |  | 10 | Nd | 
+11 | Pt  | Powrót z wakacji OP            | 11 | Nd |  | 11 | Śr | Przechadzka | 11 | Pt |  | 11 | Pn | Początek sesji
+12 | Sb  | Przeprowadzka OP               | 12 | Pn |  | 12 | Cz |  | 12 | Sb |  | 12 | Wt | 
+13 | Nd  | Początek rekolekcji OP         | 13 | Wt |  | 13 | Pt |  | 13 | Nd |  | 13 | Śr | 
+14 | Pn  |                                | 14 | Śr | Przechadzka | 14 | Sb |  | 14 | Pn |  | 14 | Cz | 
+15 | Wt  |                                | 15 | Cz |  | 15 | Nd |  | 15 | Wt |  | 15 | Pt | 
+16 | Śr  |                                | 16 | Pt |  | 16 | Pn |  | 16 | Śr |  | 16 | Sb | 
+17 | Cz  |                                | 17 | Sb |  | 17 | Wt |  | 17 | Cz |  | 17 | Nd | 
+18 | Pt  |                                | 18 | Nd |  | 18 | Śr | Dzień skupienia | 18 | Pt |  | 18 | Pn | 
+19 | Sb  | Odnowienie profesji OP         | 19 | Pn |  | 19 | Cz |  | 19 | Sb |  | 19 | Wt | 
+20 | Nd  |                                | 20 | Wt |  | 20 | Pt |  | 20 | Nd |  | 20 | Śr | 
+21 | Pn  | Inauguracja roku akademickiego | 21 | Śr | Dzień skupienia | 21 | Sb |  | 21 | Pn | wolne, jeśli się uda | 21 | Cz | 
+22 | Wt  | Kapituła rektorska             | 22 | Cz |  | 22 | Nd |  | 22 | Wt | Ferie Bożego Narodzenia | 22 | Pt | 
+23 | Śr  |                                | 23 | Pt |  | 23 | Pn |  | 23 | Śr |  | 23 | Sb | 
+24 | Cz  | Kapituła studentatu OP         | 24 | Sb |  | 24 | Wt |  | 24 | Cz |  | 24 | Nd | 
+25 | Pt  |                                | 25 | Nd |  | 25 | Śr |  | 25 | Pt | Boże Narodzenie | 25 | Pn | 
+26 | Sb  |                                | 26 | Pn |  | 26 | Cz |  | 26 | Sb | Św. Szczepana | 26 | Wt | 
+27 | Nd  |                                | 27 | Wt |  | 27 | Pt |  | 27 | Nd |  | 27 | Śr | 
+28 | Pn  |                                | 28 | Śr |  | 28 | Sb |  | 28 | Pn | Przechadzka | 28 | Cz | 
+29 | Wt  |                                | 29 | Cz |  | 29 | Nd | I Niedziela Adwentu | 29 | Wt |  | 29 | Pt | 
+30 | Śr  |                                | 30 | Pt |  | 30 | Pn |  | 30 | Śr | Dzień skupienia | 30 | Sb | Rigorosum i koniec sesji
+   |     |                                | 31 | Sb |  |    |    |  | 31 | Cz |  | 31 | Nd | Początek ferii zimowych
+---
+I ROK
+---
+
+WSTĘP OGÓLNY DO FILOZOFII
+dr Dominik Jarczewski OP
+12 godz. (zo), 1,5 ECTS
+
+PROSEMINARIUM
+mgr Tomasz Kalisz OP
+12 godz. (zo), 2 ECTS
+
+LOGIKA I
+dr Mariusz Stopa OP
+15 godz. (e), 1,5 ECTS
+
+LOGIKA I - ĆWICZENIA
+dr Mariusz Stopa OP
+15 godz. (zo), 2 ECTS
+
+HISTORIA FILOZOFII STAROŻYTNEJ
+dr Dydak K. Rycyk OFM
+30 godz. (e), 3 ECTS
+
+HISTORIA FILOZOFII STAROŻYTNEJ - ĆWICZENIA
+dr Damian Mrugalski OP
+24 godz. (zo), 3 ECTS
+
+HISTORIA KOŚCIOŁA I
+dr hab. Józef Kałużny, prof. UPJPII
+24 godz. (e), 2 ECTS
+
+WSTĘP DO PISMA ŚWIĘTEGO
+mgr lic. Grzegorz Kuraś OP
+24 godz. (e), 2 ECTS
+
+PSYCHOLOGIA OGÓLNA
+dr Natalia Czyżowska
+30 godz. (e), 3 ECTS
+
+
+MUZYKA LITURGICZNA I
+dr hab. Dawid Kusz OP
+12 godz. (z), 1,5 ECTS
+
+JĘZYK ŁACIŃSKI I
+dr Zofia Latawiec
+24 godz. (zo), 2 ECTS
+
+JĘZYK GRECKI
+dr Łukasz Halida
+24 godz. (zo), 2 ECTS
+
+NOWOŻYTNY JĘZYK OBCY
+48 godz. (zo), 4 ECTS
+
+---
+I ROK i III ROK SDB
+---
+
+TEOLOGIA DUCHOWOŚCI
+mgr lic. Bartłomiej Wolszleger OP
+24 godz. (e), 2 ECTS
+
+PSYCHOLOGIA:
+KOMUNIKACJA INTERPERSONALNA
+mgr lic. Tomasz Gaj OP
+30 godz. (zo), 2 ECTS
+
+---
+II ROK
+---
+
+ETYKA OGÓLNA
+prof. Barbara Chyrowicz SSpS
+30 godz. (e), 3 ECTS
+
+ETYKA OGÓLNA - ĆWICZENIA
+dr Jakub Synowiec
+12 godz. (zo), 1,5 ECTS
+
+METAFIZYKA II
+dr Krzysztof Ośko OP
+24 godz. (e), 2 ECTS
+
+METAFIZYKA II - ĆWICZENIA
+dr Paweł Rojek
+12 godz. (zo), 1,5 ECTS
+
+HISTORIA FILOZOFII NOWOŻYTNEJ
+prof. Justyna Miklaszewska
+30 godz. (e), 3 ECTS
+
+HISTORIA FILOZOFII NOWOŻYTNEJ ĆWICZENIA
+mgr Piotr Frey OP
+12 godz. (zo), 1,5 ECTS
+
+HISTORIA KOŚCIOŁA III
+dr hab. Wiktor Szymborski, prof. UJ
+24 godz. (e), 2 ECTS
+
+MUZYKA LITURGICZNA III
+mgr lic. Łukasz Miśko OP
+12 godz. (z), 1,5 ECTS
+
+JĘZYK ŁACIŃSKI III
+dr Zofia Latawiec
+24 godz. (zo), 2 ECTS
+
+NOWOŻYTNY JĘZYK OBCY
+24 godz. (zo), 2 ECTS
+
+---
+II ROK	i III ROK SDB
+---
+
+EMISJA GŁOSU
+mgr Krzysztof Stawowy
+14 godz. (zo), 1 ECTS
+
+---
+II ROK i III ROK SDB i III ROK
+---
+
+PRAWO KANONICZNE I (Normy ogólne…)
+prof. Piotr Skonieczny OP
+24 godz. (e), 2 ECTS
+
+---
+III ROK SDB i III ROK
+---
+ANTROPOLOGIA FILOZOFICZNA
+dr Janusz Pyda OP
+24 godz. (e), 2 ECTS
+
+ANTROPOLOGIA FILOZOFICZNA - ĆWICZENIA
+dr Janusz Pyda OP
+12 godz. (zo), 1,5 ECTS
+
+SEMINARIUM TOMISTYCZNE
+dr hab. Michał Mrozek OP
+24 godz. (zo), 2 ECTS
+
+RIGOROSUM – SEMINARIUM I PRACA
+24 godz. (zo), 8 ECTS
+
+---
+III ROK
+---
+
+FILOZOFIA RELIGII
+dr Grzegorz Chrzanowski OP
+16 godz. (e), 1,5 ECTS
+
+FILOZOFIA RELIGII - ĆWICZENIA
+dr Grzegorz Chrzanowski OP
+10 godz. (zo), 1,5 ECTS
+
+HISTORIA FILOZOFII WSPÓŁCZESNEJ
+dr Dominik Jarczewski OP
+30 godz. (e), 3 ECTS
+
+HISTORIA FILOZOFII WSPÓŁCZESNEJ 
+ĆWICZENIA
+mgr Agnieszka Czepielik
+12 godz. (zo), 1,5 ECTS
+
+TRANSLATORIUM J. ŁACIŃSKIEGO I
+dr Łukasz Halida
+24 godz. (zo), 2 ECTS
+
+EGZAMIN 
+EX UNIVERSA PHILOSOPHIA
+4 ECTS (e)
+
+---
+II ROK i III ROK
+---
+
+FILOZOFIA POLITYKI
+dr Konstanty Pilawa
+24 godz. (e), 2 ECTS
+
+
+---
+III ROK i V ROK SDB i VI ROK SDB i VI ROK
+---
+
+HERMENEUTYKA BIBLIJNA
+mgr lic. Michał Wilk
+(12, e), 1 ECTS
+
+---
+IV ROK
+---
+EGZEGEGEZA STAREGO TESTAMENTU: HISTORIA DEUTERONOMISTYCZNA
+dr Jakub Bluj OP
+24 godz. (e), 2 ECTS
+
+O BOGU JEDYNYM W TRÓJCY I
+dr hab. Mateusz Przanowski OP
+24 godz. (e), 2 ECTS
+
+O BOGU JEDYNYM W TRÓJCY I
+ĆWICZENIA
+dr Krzysztof Ośko OP
+12 godz. (zo), 1,5 ECTS
+
+CHRYSTOLOGIA
+dr Paweł Klimczak OP
+24 godz. (e), 2 ECTS
+
+CHRYSTOLOGIA - ĆWICZENIA
+dr Damian Mrugalski OP
+12 godz. (zo), 1,5 ECTS
+
+TEOLOGIA MORALNA 
+FUNDAMENTALNA I
+dr Robert Plich OP
+24 godz. (e), 2 ECTS
+
+TEOLOGIA MORALNA FUNDAMENTALNA I - ĆWICZENIA
+dr hab. Michał Mrozek OP
+12 godz. (zo), 1,5 ECTS
+
+HISTORIA TEOLOGII I, cz. 2
+dr Damian Mrugalski OP
+24 godz. (e), 2 ECTS
+
+HOMILETYKA I
+ks. dr Andrzej Kołek
+12 godz. (zo), 1 ECTS
+
+HOMILETYKA I - ĆWICZENIA
+ks. dr Andrzej Kołek
+6 godz. (z), 1 ECTS
+
+DYDAKTYKA KATECHETYCZNA
+mgr lic. Halina Mol ABMV
+15 godz. (e), 1,5 ECTS
+
+PRAKTYKI KATECHETYCZNE II 
+Szkoła Podstawowa
+30 godz. (zo), 4 ECTS
+
+SEMINARIUM MAGISTERSKIE I
+24 godz. (z), 6 ECTS
+
+SEMINARIUM SPECJALISTYCZNE I
+24 godz. (zo), 5 ECTS
+
+---
+IV ROK i V ROK
+---
+
+EGZEGEZA NOWEGO TESTAMENTU: DZIEJE i LISTY I
+dr Danuta Piekarz
+24 godz. (e), 2 ECTS
+
+---
+V ROK SDB i V ROK
+---
+
+TEOLOGIA LITURGII
+dr Dominik Jurczak OP
+24 godz. (e), 2 ECTS
+
+HISTORIA TEOLOGII III
+dr Maciej Roszkowski OP
+24 godz. (e), 2 ECTS
+
+METODY AKTYWIZUJACE NA KATECHEZIE
+dr Zbigniew Barciński
+15 godz. (z), 1,5 ECTS
+
+HOMILETYKA III
+dr Tomasz Zamorski OP
+12 godz. (zo), 1 ECTS
+
+HOMILETYKA III - ĆWICZENIA
+dr Tomasz Zamorski OP
+6 godz. (z), 1 ECTS
+
+MUZYKA LITURGICZNA V
+dr hab. Dawid Kusz OP
+12 godz. (z), 1,5 ECTS
+
+PRAKTYKI KATECHETYCZNE IV 
+Liceum
+25 godz. (zo), 4 ECTS
+
+SEMINARIUM MAGISTERSKIE III
+24 godz. (z), 6 ECTS
+
+SEMINARIUM SPECJALISTYCZNE III
+24 godz. (zo), 5 ECTS
+
+---
+V ROK SDB i V ROK i VI ROK SDB
+---
+PRAWO KANONICZNE III (Prawo karne…)
+prof. Piotr Skonieczny OP
+24 godz. (e), 2 ECTS
+
+---
+ROK V
+---
+
+EGZEGEZA STAREGO TESTAMENTU: LITERATATURA PROROCKA II
+dr Jakub Bluj OP
+24 godz. (e), 2 ECTS
+
+TEOLOGIA LITURGII - ĆWICZENIA
+mgr lic. Łukasz Miśko OP
+12 godz. (zo), 1,5 ECTS
+
+SAKRAMENTOLOGIA OGÓLNA
+ks. dr Krzysztof Porosło
+24 godz. (e), 2 ECTS
+
+CNOTY TEOLOGALNE
+dr Robert Plich OP
+24 godz. (e), 2 ECTS
+
+---
+ROK V i ROK VI
+---
+
+KATOLICKA NAUKA SPOŁECZNA
+dr hab. Rafał Łętocha, prof. UJ
+16 godz. (e), 1,5/2 ECTS
+
+---
+VI ROK SDB i VI ROK
+---
+TEOLOGIA BIBILIJNA
+mgr lic. Michał Wilk
+(12, e), 1 ECTS
+
+EKUMENIZM
+dr hab. Marek Blaza SJ, prof. AKW
+12 godz. (e), 2 ECTS
+
+HOMILETYKA V - ĆWICZENIA
+mgr lic. Tomasz Nowak OP
+6 godz. (z), 1 ECTS
+
+SEMINARIUM MAGISTERSKIE V
+24 godz. (z), 2 ECTS
+
+PRAKTYKI DUSZPASTERSKIE
+70 godz. (z), 5 ECTS
+
+---
+VI ROK
+---
+
+ESCHATOLOGIA
+dr Maciej Roszkowski OP
+16 godz. (e), 2 ECTS
+
+MARIOLOGIA
+dr Paweł Klimczak OP
+16 godz. (e), 2 ECTS
+
+BIOETYKA
+dr Artur Hącia OP
+12 godz. (e), 1,5 ECTS
+
+TEOLOGIA PASTORALNA
+dr Norbert Lis OP
+12 godz. (e), 2 ECTS
+
+KATECHETYKA MATERIALNA: 
+KATECHEZA O MAŁŻ. I RODZINIE
+mgr lic. Mirosław Pilśniak OP
+30 godz. (e), 3 ECTS
+
+PRAKTYKI PSYCHOLOGICZNO-PEDAGOGICZNE
+30 godz. (zo), 3 ECTS
+
+---
+VI ROK SDB
+---
+
+ŚPIEWY KAPŁAŃSKIE
+Krzysztof Dobosz
+30 godz. (z), 4 ECTS

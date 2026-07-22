@@ -1,0 +1,40 @@
+<?php
+
+use App\Http\Controllers\SemesterController;
+use App\Http\Controllers\CohortController;
+use App\Http\Controllers\LecturerController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\CalendarDayController;
+use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\SchedulePlannerController;
+use Illuminate\Support\Facades\Route;
+
+// Słowniki (CRUD)
+Route::apiResource('semesters', SemesterController::class);
+Route::apiResource('cohorts', CohortController::class);
+Route::apiResource('lecturers', LecturerController::class);
+Route::apiResource('subjects', SubjectController::class);
+Route::post('subjects/copy', [SubjectController::class, 'copyFromSemester']);
+
+// Statusy dni w kalendarzu
+Route::get('calendar-days', [CalendarDayController::class, 'index']);
+Route::post('calendar-days', [CalendarDayController::class, 'updateOrCreate']);
+
+// Dyspozycyjność wykładowców
+Route::get('/availabilities/grid', [AvailabilityController::class, 'gridData']);
+Route::post('/availabilities/toggle', [AvailabilityController::class, 'toggleCell']);
+Route::post('/availabilities/comment', [\App\Http\Controllers\AvailabilityController::class, 'updateComment']);
+
+// Egzaminy sesyjne
+
+Route::get('/exams', [ExamController::class, 'index']);
+Route::post('/exams', [ExamController::class, 'store']);
+Route::delete('/exams/{exam}', [ExamController::class, 'destroy']);
+Route::get('/exams/session-dates', [App\Http\Controllers\ExamController::class, 'sessionDates']);
+
+// Główny plan zajęć
+Route::get('/planner/grid', [SchedulePlannerController::class, 'gridData']);
+Route::post('/planner/toggle', [SchedulePlannerController::class, 'toggleEntry']);
+Route::get('/schedules/lecturer/{lecturer_id}', [SchedulePlannerController::class, 'lecturerSchedule']);
+Route::delete('/planner/entries/{id}', [SchedulePlannerController::class, 'destroyEntry']);

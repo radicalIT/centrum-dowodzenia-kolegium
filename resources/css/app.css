@@ -1,0 +1,77 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+:root {
+    /* Paleta brązów (elegancka, ale czytelna) */
+    --color-primary: #5C4033;
+    /* Ciemny brąz - nagłówki, ważne przyciski */
+    --color-secondary: #8B5A2B;
+    /* Jaśniejszy brąz - akcenty, aktywne zakładki */
+    --color-background: #FDFBF7;
+    /* Bardzo delikatny, ciepły off-white na tło aplikacji */
+    --color-surface: #FFFFFF;
+    /* Tło białych paneli/tabel */
+    --color-border: #D7CCC8;
+    /* Delikatne obramowania tabel */
+    --color-text: #3E2723;
+    /* Główny tekst - bardzo ciemny brąz (lżejszy niż czysto czarny) */
+
+    /* Kolory funkcyjne do tabel z dniami */
+    --color-holiday: #D32F2F;
+    /* Czerwony: Dzień wolny */
+    --color-holiday-bg: #FFEBEE;
+    /* Tło dla dnia wolnego */
+    --color-conditional: #F57C00;
+    /* Pomarańczowy: Wolny jeśli to możliwe */
+    --color-conditional-bg: #FFF3E0;
+    /* Tło dla warunkowo wolnego */
+
+    /* Font */
+    /* Rozdzielone fonty */
+    --font-text: 'Lora', serif;
+    --font-heading: 'Montserrat', sans-serif;
+}
+
+body {
+    font-family: var(--font-text);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    margin: 0;
+    padding: 0;
+}
+
+/* Wymuszenie fontu nagłówkowego dla wszystkich tytułów */
+h1, h2, h3, h4, h5, h6, .logo h1 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    margin-top: 0;
+}
+
+/* Klawisze i nawigacja też zazwyczaj lepiej wyglądają w foncie nagłówkowym */
+button, .nav-link, th {
+    font-family: var(--font-heading);
+    font-weight: 600;
+}
+
+/* Przykładowa klasa dla eleganckich tabel */
+.college-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--color-surface);
+}
+
+.college-table th,
+.college-table td {
+    border: 1px solid var(--color-border);
+    padding: 12px;
+    text-align: center;
+}
