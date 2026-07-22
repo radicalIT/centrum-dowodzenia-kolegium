@@ -1,50 +1,52 @@
 <template>
-    <div class="public-schedule-wrapper">
+    <div class="public-container">
         <header class="schedule-header">
-            <h2>Plan Zajęć (Twój Indywidualny)</h2>
+            <div class="header-titles">
+                <h2>Indywidualny Plan Zajęć</h2>
+                <p class="subtitle" v-if="lecturerName">Wykładowca: <strong>{{ lecturerName }}</strong></p>
+            </div>
         </header>
 
         <div v-if="!lecturerId" class="error-banner">
-            Brak identyfikatora wykładowcy w linku. Upewnij się, że używasz prawidłowego adresu (np. ?id=1).
+            <strong>Błąd dostępu:</strong> Brak identyfikatora wykładowcy w linku. Upewnij się, że używasz prawidłowego adresu (np. ?id=1).
         </div>
 
         <div v-else>
             <div class="week-navigation">
-                <button @click="changeWeek(-1)">⬅ Poprzedni tydzień</button>
-                <span>Tydzień: {{ weekStartStr }} - {{ weekEndStr }}</span>
-                <button @click="changeWeek(1)">Następny tydzień ➡</button>
+                <button class="nav-btn" @click="changeWeek(-1)">&#8592; Poprzedni tydzień</button>
+                <span class="week-label">Tydzień: <strong>{{ weekStartStr }}</strong> — <strong>{{ weekEndStr }}</strong></span>
+                <button class="nav-btn" @click="changeWeek(1)">Następny tydzień &#8594;</button>
             </div>
 
             <div class="table-responsive">
-                <table class="schedule-table">
+                <!-- Tabela Raportowa (Styl PDF) -->
+                <table class="report-table">
                     <thead>
                         <tr>
-                            <th>Data</th>
-                            <th>Zajęcia</th>
+                            <th class="w-date">Data</th>
+                            <th class="w-block">Blok</th>
+                            <th>Przedmiot</th>
+                            <th class="w-cohort">Rocznik (Grupa)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-if="loading"><td colspan="2" class="text-center">Ładowanie...</td></tr>
-                        <tr v-else-if="schedule.length === 0"><td colspan="2" class="text-center">Brak wyznaczonych zajęć w tym tygodniu.</td></tr>
-                        <tr v-for="entry in schedule" :key="entry.id" v-else>
-                            <td class="date-cell">
+                        <tr v-if="loading">
+                            <td colspan="4" class="text-center">Ładowanie danych...</td>
+                        </tr>
+                        <tr v-else-if="schedule.length === 0">
+                            <td colspan="4" class="text-center">Brak wyznaczonych zajęć w tym tygodniu.</td>
+                        </tr>
+                        <tr v-for="entry in schedule" :key="entry.id" v-else class="report-row">
+                            <td class="cell-date">
                                 <strong>{{ entry.calendar_day.date }}</strong><br>
-                                <small>Blok: {{ entry.block_number }}</small>
+                                <small class="text-muted">{{ getDayName(entry.calendar_day.date) }}</small>
                             </td>
-                            <td>
-                                <div class="entry-card">
-                                    <span class="subject">{{ entry.subject.name }}</span>
-                                    <span class="cohort">Rocznik: {{ entry.cohort.name }}</span>
-                                </div>
-                            </td>
+                            <td class="cell-block">Blok {{ entry.block_number }}</td>
+                            <td class="cell-subject"><strong>{{ entry.subject.name }}</strong></td>
+                            <td class="cell-cohort">{{ entry.cohort.name }}</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="week-navigation bottom">
-                <button @click="changeWeek(-1)">⬅ Poprzedni tydzień</button>
-                <button @click="changeWeek(1)">Następny tydzień ➡</button>
             </div>
         </div>
     </div>
@@ -57,14 +59,21 @@ import axios from 'axios';
 const schedule = ref([]);
 const loading = ref(false);
 const lecturerId = ref(null);
+const lecturerName = ref('');
 
 const currentDate = ref(new Date());
 
+// --- Funkcje Dat ---
 const getMonday = (d) => {
     const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
 };
 const formatDate = (date) => date.toISOString().split('T')[0];
+
+const getDayName = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('pl-PL', { weekday: 'long' });
+};
 
 const weekStart = computed(() => getMonday(new Date(currentDate.value)));
 const weekEnd = computed(() => {
@@ -76,6 +85,7 @@ const weekEnd = computed(() => {
 const weekStartStr = computed(() => formatDate(weekStart.value));
 const weekEndStr = computed(() => formatDate(weekEnd.value));
 
+// --- Pobieranie Danych ---
 const fetchSchedule = async () => {
     if (!lecturerId.value) return;
     
@@ -89,12 +99,22 @@ const fetchSchedule = async () => {
             }
         });
         
+        // Sortowanie po dacie, a następnie po bloku
         schedule.value = response.data.sort((a, b) => {
              if(a.calendar_day.date === b.calendar_day.date) {
                  return (a.block_number || 0) - (b.block_number || 0);
              }
              return new Date(a.calendar_day.date) - new Date(b.calendar_day.date);
         });
+
+        // Pobieramy imię i nazwisko z pierwszego rekordu, żeby wyświetlić w nagłówku
+        if (schedule.value.length > 0 && !lecturerName.value) {
+            // Zakładając, że backend zwraca też obiekt lecturer w getLecturerSchedule
+            // Jeśli nie, warto dodać `with('lecturer')` w PublicScheduleController
+            if(schedule.value[0].lecturer) {
+                lecturerName.value = schedule.value[0].lecturer.name;
+            }
+        }
     } catch (error) {
         console.error("Błąd pobierania planu wykładowcy", error);
     } finally {
@@ -110,7 +130,6 @@ const changeWeek = (direction) => {
 };
 
 onMounted(() => {
-    // Odczyt parametru "id" bezpośrednio z paska adresu przeglądarki
     const urlParams = new URLSearchParams(window.location.search);
     lecturerId.value = urlParams.get('id');
     
@@ -121,20 +140,95 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Te same style co dla studentów, z dodatkiem czerwonego paska na błąd */
-.public-schedule-wrapper { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; font-family: sans-serif; }
-.schedule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.error-banner { background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 4px; border: 1px solid #f5c6cb; text-align: center; }
-.week-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: #f8f9fa; padding: 1rem; border-radius: 8px; }
-.week-navigation button { padding: 0.5rem 1rem; cursor: pointer; background: #fff; border: 1px solid #ccc; border-radius: 4px; }
-.week-navigation button:hover { background: #e2e6ea; }
-.week-navigation.bottom { margin-top: 1rem; margin-bottom: 0; }
-.schedule-table { width: 100%; border-collapse: collapse; }
-.schedule-table th, .schedule-table td { border: 1px solid #ddd; padding: 1rem; text-align: left; }
-.schedule-table th { background-color: #004d40; color: white; } /* Inny kolor dla wykładowcy */
-.date-cell { white-space: nowrap; width: 150px; background: #fafafa; }
-.entry-card { display: flex; flex-direction: column; gap: 4px; }
-.subject { font-weight: bold; font-size: 1.1rem; color: #007bff; }
-.cohort { font-size: 0.9rem; color: #555; }
-.text-center { text-align: center; padding: 2rem !important; }
+.public-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background-color: var(--color-surface, #ffffff);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.schedule-header {
+    border-bottom: 2px solid var(--color-primary, #2c3e50);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.header-titles h2 { margin: 0; color: var(--color-primary, #1a1a1a); font-size: 1.8rem; }
+.subtitle { margin: 8px 0 0 0; color: #444; font-size: 1.1rem; }
+
+.error-banner {
+    background-color: #fdf3f4;
+    color: #c92a2a;
+    padding: 1.2rem;
+    border-radius: 6px;
+    border-left: 4px solid #c92a2a;
+    font-size: 1.05rem;
+}
+
+/* Nawigacja Tygodnia */
+.week-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafafa;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border, #eaeaea);
+}
+
+.nav-btn {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.nav-btn:hover { background: #f0f0f0; }
+.week-label { font-size: 1.05rem; color: #333; }
+
+/* Tabela Raportowa */
+.table-responsive { overflow-x: auto; }
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.report-table th, .report-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border, #eaeaea);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.report-table th {
+    background-color: #f4f6f8;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #ccc;
+}
+
+.report-row:hover { background-color: #fafbfc; }
+
+.w-date { width: 140px; }
+.w-block { width: 100px; text-align: center; }
+.w-cohort { width: 200px; }
+
+.cell-date strong { font-size: 1rem; color: var(--color-primary, #2c3e50); }
+.cell-block { text-align: center; font-weight: 500; color: #555; }
+.cell-subject { font-size: 1.05rem; color: #111; }
+.cell-cohort { color: #666; font-style: italic; }
+
+.text-muted { color: #888; text-transform: capitalize; }
+.text-center { text-align: center; padding: 3rem !important; color: #666; }
 </style>

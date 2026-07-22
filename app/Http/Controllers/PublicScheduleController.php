@@ -44,7 +44,7 @@ class PublicScheduleController extends Controller
             return response()->json(['message' => 'Brak identyfikatora wykładowcy'], 400);
         }
 
-        $entries = ScheduleEntry::with(['calendarDay', 'subject', 'cohort'])
+        $entries = ScheduleEntry::with(['calendarDay', 'subject', 'cohort', 'lecturer'])
             ->where('lecturer_id', $lecturerId)
             ->whereHas('calendarDay', function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('date', [$startDate, $endDate]);
