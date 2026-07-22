@@ -1,50 +1,44 @@
-# Kolegium - Centrum Dowodzenia 🚀
+# 🏛️ Kolegium - Centrum Dowodzenia
 
-Prosty i wydajny system do zarządzania planem zajęć akademickich. Projekt stworzony w Vue 3, oferujący interaktywne narzędzia do planowania semestru, przypisywania przedmiotów do roczników oraz generowania gotowych planów w formie plików PDF.
+Zaawansowany system do zarządzania planem zajęć akademickich, harmonogramem sesji egzaminacyjnych, dyspozycyjnością wykładowców oraz strukturą semestralną uczelni.
 
-## 🛠 Główne funkcje
+## 🛠️ Technologie
 
-*   **Interaktywny kalendarz:** Intuicyjny interfejs do tworzenia siatki zajęć na dany semestr.
-*   **Zarządzanie zasobami:** Dodawanie i edycja przedmiotów, roczników, wykładowców oraz poszczególnych dni w kalendarzu.
-*   **System dyspozycyjności:** Oznaczanie dni wolnych (globalnych lub dla poszczególnych roczników) i uwzględnianie preferencji wykładowców.
-*   **Wyszukiwarka:** Szybkie odnajdywanie przedmiotów w gąszczu planu.
-*   **Generator PDF:** Automatyczne tworzenie czytelnych, wielostronicowych raportów PDF z planem zajęć (przy użyciu `html2pdf.js`). Obsługa scalania komórek i poprawny podział na strony.
+Projekt został zbudowany w architekturze hybrydowej (SPA + Monolit API):
+*   **Backend:** Laravel (PHP) – REST API, migracje bazodanowe, modele relacyjne.
+*   **Frontend:** Vue 3 (Composition API, `<script setup>`) – interaktywne widoki, dynamiczne siatki zajęć.
+*   **Stylizacja:** CSS3 (Flexbox, custom properties, responsywny layout).
+*   **Narzędzia i biblioteki:** 
+    *   `Axios` – komunikacja z API.
+    *   `html2pdf.js` – zaawansowany generator raportów i planów zajęć do formatu PDF z obsługą dynamicznego scalania komórek (`colspan`/`rowspan`) oraz podziału na strony.
 
-## ⚙️ Technologie
+---
 
-*   **Frontend:** Vue 3 (Composition API, `<script setup>`)
-*   **Style:** CSS (scoped)
-*   **Komunikacja z API:** Axios
-*   **Eksport do PDF:** html2pdf.js
+## 📂 Architektura i Struktura Projektu
 
-## 🚀 Uruchomienie projektu
+*   `app/Http/Controllers/` – Kontrolery obsługujące logikę biznesową (planowanie zajęć, zarządzanie rocznikami, przedmioty, dni kalendarzowe, dyspozycyjność wykładowców).
+*   `app/Models/` – Eloquent ORM (modele powiązane z bazą danych m.in. dla roczników, semestrów, wpisów do planu, egzaminów).
+*   `resources/js/components/` – Główne komponenty interfejsu Vue:
+    *   `SchedulePlanner.vue` – Główny planer zajęć, obsługa bloków godzinowych, licznik godzin oraz stabilny moduł eksportu do PDF.
+    *   `CalendarDays.vue` – Zarządzanie kalendarzem dni roboczych, wolnych i uroczystości.
+    *   `LecturerAvailability.vue` – Modularny system dyspozycyjności wykładowców (mogę, jeśli trzeba, nie mogę).
+    *   `SessionExams.vue` – Harmonogram egzaminów i sesji.
+    *   `Cruds.vue` – Panel administracyjny do zarządzania bazą danych (przedmioty, wykładowcy, roczniki).
+    *   `SearchableSelect.vue` – Niestandardowy komponent wyszukiwarki z obsługą filtrowania.
 
-1.  **Klonowanie repozytorium:**
-    ```bash
-    git clone <adres-repozytorium>
-    cd <nazwa-folderu>
-    ```
+---
 
-2.  **Instalacja zależności:**
-    Upewnij się, że masz zainstalowanego Node.js.
-    ```bash
-    npm install
-    ```
+## ✨ Kluczowe Funkcje
 
-3.  **Uruchomienie serwera deweloperskiego:**
-    ```bash
-    npm run dev
-    ```
-    Projekt będzie domyślnie dostępny pod adresem `http://localhost:5173`.
-
-## 📂 Struktura kluczowych komponentów
-
-*   `Planner.vue` - Główne serce aplikacji. Widok siatki zajęć, logika przypisywania przedmiotów, obsługa konfliktów oraz silnik eksportu do PDF.
-*   `Calendar.vue` - Definiowanie struktury kalendarza akademickiego.
-*   `SearchableSelect.vue` - Użyteczny komponent wyszukiwarki do wyboru przedmiotów.
-
-## 📄 Informacje o eksporcie PDF
-Aplikacja wykorzystuje spersonalizowaną logikę `html2pdf.js`, która:
-*   Filtruje tylko zatwierdzone zajęcia.
-*   Scala dni wolne przy użyciu `colspan` i `rowspan`.
-*   Zabezpiecza układ tabeli przed niechcianym ucinaniem wierszy (`cumulative layout shift`) przy pomocy dedykowanych paddingów i twardych podziałów CSS.
+1.  **Inteligentny Planer Zajęć:**
+    *   Podział na bloki godzinowe (Blok 1: 8:15–9:50, Blok 2: 10:00–11:35).
+    *   Przelicznik bloków na godziny lekcyjne (1 wyznaczony blok w siatce to 2 godziny lekcyjne w liczniku zajęć).
+    *   Weryfikacja konfliktów oraz obsługa zatwierdzania wpisów przez koordynatora.
+2.  **Zaawansowany Moduł Eksportu PDF:**
+    *   Automatyczne generowanie ogólnego planu zajęć dla wszystkich roczników.
+    *   Inteligentne łączenie komórek (`rowspan` dla identycznych zajęć sąsiadujących roczników oraz `colspan` dla dni wolnych).
+    *   Odrębne traktowanie dni wolnych globalnych oraz wolnych dedykowanych dla konkretnych roczników.
+    *   Ochrona przed rozcinaniem wierszy i kontrolowany podział stron.
+3.  **Zarządzanie Kalendarzem i Dyspozycyjnością:**
+    *   Definiowanie semestrów, roczników (cohorts) oraz przypisywanie przedmiotów.
+    *   Wizualny system dyspozycyjności wykładowców z podziałem na stopnie gotowości.
