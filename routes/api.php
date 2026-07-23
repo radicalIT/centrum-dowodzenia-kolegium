@@ -8,14 +8,20 @@ use App\Http\Controllers\CalendarDayController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\SchedulePlannerController;
+
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublicScheduleController;
+use App\Http\Controllers\CalendarSubscriptionController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/public-schedule', function () {
     return response()->json(['message' => 'Tu w przyszłości będzie publiczny plan zajęć.']);
 });
+
+Route::get('/calendar/cohort/{id}.ics', [CalendarSubscriptionController::class, 'cohortCalendar']);
+Route::get('/calendar/lecturer/{hashId}.ics', [CalendarSubscriptionController::class, 'lecturerCalendar']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/public/cohorts', [PublicScheduleController::class, 'getCohorts']);

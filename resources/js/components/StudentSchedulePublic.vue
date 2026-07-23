@@ -106,6 +106,29 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- ================= NOWA SEKCJA: SUBSKRYPCJA KALENDARZA ================= -->
+        <div class="calendar-subscribe-section no-print">
+            <div class="calendar-instructions">
+                <h3>Subskrybuj plan w swoim kalendarzu</h3>
+                <p>Bądź zawsze na bieżąco! Możesz dodać ten plan do Google Calendar, Apple Calendar lub Outlooka, aby mieć go zawsze pod ręką. Zmiany zaktualizują się automatycznie!</p>
+                <ol>
+                    <li>Skopiuj link dla odpowiedniego rocznika poniżej.</li>
+                    <li>W swoim kalendarzu (np. Google) wybierz opcję <strong>"Dodaj kalendarz" &rarr; "Z adresu URL"</strong>.</li>
+                    <li>Wklej skopiowany link i zatwierdź.</li>
+                </ol>
+            </div>
+            
+            <div class="calendar-links">
+                <!-- Zmienna displayCohorts automatycznie filtruje listę na podstawie wybranego kafelka! -->
+                <div v-for="cohort in displayCohorts" :key="'ical-' + cohort.id" class="calendar-link-row">
+                    <span class="cohort-name">{{ cohort.name }}</span>
+                    <input type="text" readonly :value="getIcsUrl(cohort.id)" class="ics-input" @click="$event.target.select()" />
+                    <button @click="copyIcsLink(getIcsUrl(cohort.id))" class="btn-copy">Kopiuj link</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -153,7 +176,6 @@ const isDayCompletelyFree = (date) => {
 };
 
 // --- LOGIKA ŚWIĄT DEDYKOWANYCH KONKRETNYM ROCZNIKOM ---
-
 const getCohortHolidayName = (dateStr, cohortId) => {
     const dayData = calendarDays.value.find(d => {
         if (d.date !== dateStr) return false;
@@ -161,16 +183,13 @@ const getCohortHolidayName = (dateStr, cohortId) => {
         const cId = d.cohort_id;
         const cIds = d.cohortids || d.cohort_ids;
         
-        // Jeśli jest to przypisane bezpośrednio do rocznika (zależnie od tego jak zwraca to Twój backend)
         if (cId && String(cId) === String(cohortId)) return true;
         if (cIds) {
             if (Array.isArray(cIds) && cIds.map(String).includes(String(cohortId))) return true;
             if (typeof cIds === 'string' && cIds.split(',').map(s=>s.trim()).includes(String(cohortId))) return true;
         }
         
-        // Ewentualnie łapiemy święto globalne, jeśli reszta roczników np. odrabia zajęcia
         if (!cId && !cIds) return true;
-
         return false;
     });
     return dayData ? dayData.name : null;
@@ -186,7 +205,6 @@ const isCohortHoliday = (dateStr, cohortId) => {
 
 
 // --- DATY I DNI ---
-
 const getMonday = (d) => {
     const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
@@ -268,9 +286,7 @@ const getEntries = (date, cohortId, blockNum) => {
 };
 
 // --- LOGIKA GRUPOWANIA ZAJĘĆ (ROWSPAN) ---
-
 const getBlockFingerprint = (date, cohortId, blockNum) => {
-    // Odcinamy możliwość łączenia jeśli dany rocznik ma tutaj indywidualne święto (zapobiega to błędom w rowspanie okienek u sąsiadów)
     if (isCohortHoliday(date, cohortId)) return `HOLIDAY_${cohortId}`;
     
     const entries = getEntries(date, cohortId, blockNum);
@@ -294,6 +310,20 @@ const shouldRenderBlock = (date, cIndex, blockNum) => {
     const currentPrint = getBlockFingerprint(date, displayCohorts.value[cIndex].id, blockNum);
     const prevPrint = getBlockFingerprint(date, displayCohorts.value[cIndex - 1].id, blockNum);
     return currentPrint !== prevPrint; 
+};
+
+// --- LOGIKA SUBSKRYPCJI KALENDARZA ---
+const getIcsUrl = (cohortId) => {
+    return `${window.location.origin}/api/calendar/cohort/${cohortId}.ics`;
+};
+
+const copyIcsLink = async (url) => {
+    try {
+        await navigator.clipboard.writeText(url);
+        alert("Pomyślnie skopiowano link do schowka! Możesz go teraz wkleić w swoim kalendarzu.");
+    } catch (err) {
+        prompt("Skopiuj link ręcznie (Ctrl+C):", url);
+    }
 };
 
 onMounted(() => {
@@ -432,6 +462,84 @@ onMounted(() => {
     color: var(--color-text-muted, #555);
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+/* ================= STYLE DLA SUBSKRYPCJI KALENDARZA ================= */
+.calendar-subscribe-section {
+    max-width: 1000px;
+    margin: 0 auto 3rem auto;
+    background: var(--color-surface);
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border-left: 5px solid var(--color-primary);
+}
+
+.calendar-instructions h3 {
+    margin-top: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading, inherit);
+}
+
+.calendar-instructions p, .calendar-instructions li {
+    color: var(--color-text);
+    line-height: 1.5;
+}
+
+.calendar-instructions ol {
+    padding-left: 35px;
+    margin-bottom: 15px;
+    margin-top: 10px;
+    list-style-type: decimal;
+    list-style-position: outside;
+}
+
+.calendar-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.calendar-link-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--color-surface-muted);
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+}
+
+.cohort-name {
+    min-width: 150px;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.ics-input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #555;
+    font-family: monospace;
+    cursor: text;
+}
+
+.btn-copy {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: filter 0.2s ease-in-out;
+}
+
+.btn-copy:hover {
+    filter: brightness(0.85);
 }
 
 @media print {

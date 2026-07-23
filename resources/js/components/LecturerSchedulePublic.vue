@@ -9,7 +9,7 @@
             </div>
             
             <div v-if="!lecturerId" class="error-banner">
-                <strong>Błąd dostępu:</strong> Brak identyfikatora wykładowcy w linku (np. ?id=1).
+                <strong>Błąd dostępu:</strong> Brak identyfikatora wykładowcy w linku (np. ?id=gYw9).
             </div>
         </header>
 
@@ -60,6 +60,28 @@
 
             </div>
         </div>
+
+        <!-- ================= NOWA SEKCJA: SUBSKRYPCJA KALENDARZA (Wykładowca) ================= -->
+        <div v-if="lecturerId" class="calendar-subscribe-section no-print">
+            <div class="calendar-instructions">
+                <h3>Subskrybuj swój plan w kalendarzu</h3>
+                <p>Bądź zawsze na bieżąco! Możesz dodać ten plan do Google Calendar, Apple Calendar lub Outlooka, aby mieć go zawsze pod ręką w telefonie. Zmiany wprowadzone przez administrację zaktualizują się automatycznie!</p>
+                <ol>
+                    <li>Skopiuj swój unikalny link z pola poniżej.</li>
+                    <li>W swoim kalendarzu (np. Google) wybierz opcję <strong>"Dodaj kalendarz" &rarr; "Z adresu URL"</strong>.</li>
+                    <li>Wklej skopiowany link i zatwierdź.</li>
+                </ol>
+            </div>
+            
+            <div class="calendar-links">
+                <div class="calendar-link-row">
+                    <span class="cohort-name">Mój plan zajęć</span>
+                    <input type="text" readonly :value="getLecturerIcsUrl()" class="ics-input" @click="$event.target.select()" />
+                    <button @click="copyIcsLink(getLecturerIcsUrl())" class="btn-copy">Kopiuj link</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -194,6 +216,21 @@ const changeWeek = (direction) => {
     fetchSchedule();
 };
 
+// --- LOGIKA SUBSKRYPCJI KALENDARZA ---
+const getLecturerIcsUrl = () => {
+    // lecturerId.value zawiera nasz zaszyfrowany hash, np "gYw9"
+    return `${window.location.origin}/api/calendar/lecturer/${lecturerId.value}.ics`;
+};
+
+const copyIcsLink = async (url) => {
+    try {
+        await navigator.clipboard.writeText(url);
+        alert("Pomyślnie skopiowano link do schowka! Możesz go teraz wkleić w swoim kalendarzu.");
+    } catch (err) {
+        prompt("Skopiuj link ręcznie (Ctrl+C):", url);
+    }
+};
+
 onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);
     lecturerId.value = urlParams.get('id');
@@ -294,6 +331,84 @@ onMounted(() => {
 }
 .text-center { text-align: center; }
 .empty-schedule { font-style: italic; color: var(--color-text-muted, #666); }
+
+/* ================= STYLE DLA SUBSKRYPCJI KALENDARZA ================= */
+.calendar-subscribe-section {
+    max-width: 1000px;
+    margin: 0 auto 3rem auto;
+    background: var(--color-surface, #fff);
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border-left: 5px solid var(--color-primary);
+}
+
+.calendar-instructions h3 {
+    margin-top: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading, inherit);
+}
+
+.calendar-instructions p, .calendar-instructions li {
+    color: var(--color-text);
+    line-height: 1.5;
+}
+
+.calendar-instructions ol {
+    padding-left: 35px;
+    margin-bottom: 15px;
+    margin-top: 10px;
+    list-style-type: decimal;
+    list-style-position: outside;
+}
+
+.calendar-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.calendar-link-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--color-surface-muted);
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+}
+
+.cohort-name {
+    min-width: 150px;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.ics-input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #555;
+    font-family: monospace;
+    cursor: text;
+}
+
+.btn-copy {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: filter 0.2s ease-in-out;
+}
+
+.btn-copy:hover {
+    filter: brightness(0.85);
+}
 
 @media print {
     .no-print { display: none !important; }

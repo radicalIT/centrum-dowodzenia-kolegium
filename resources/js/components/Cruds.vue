@@ -216,6 +216,8 @@
               <td class="actions-cell">
                 <button @click.stop="copyLecturerLink(item)" class="btn-secondary"
                   style="background-color: #2c3e50; color: white; border: none;">Skopiuj link</button>
+                <button @click.stop="copyLecturerCalendarLink(item)" class="btn-secondary"
+                  style="background-color: #16a085; color: white; border: none;">Kalendarz</button>
                 <button @click.stop="exportLecturerPDF(item)" class="btn-primary"
                   style="background-color: #5d4037;">PDF</button>
                 <button @click.stop="deleteItem('lecturers', item.id)" class="btn-danger">Usuń</button>
@@ -465,6 +467,20 @@ const showLecturerModal = ref(false);
 const showEditSubjectModal = ref(false);
 
 const data = reactive({ lecturers: [], cohorts: [], semesters: [], subjects: [] });
+
+const copyLecturerCalendarLink = async (lecturer) => {
+  if (!lecturer.encrypted_id) {
+    alert("Brak zaszyfrowanego ID wykładowcy.");
+    return;
+  }
+  const url = `${window.location.origin}/api/calendar/lecturer/${lecturer.encrypted_id}.ics`;
+  try {
+    await navigator.clipboard.writeText(url);
+    alert(`Skopiowano link subskrypcji kalendarza dla wykładowcy: ${lecturer.last_name}\n\nLink możesz wkleić bezpośrednio do Google Calendar.`);
+  } catch (err) {
+    prompt("Skopiuj link ręcznie:", url);
+  }
+};
 
 // NOWE MAPOWANIE: Przygotowuje dane dla SearchableSelect
 const lecturerOptions = computed(() => {
@@ -829,7 +845,7 @@ const copyLecturerLink = async (lecturer) => {
     alert(`Pomyślnie skopiowano link do schowka dla: ${lecturer.title} ${lecturer.first_name} ${lecturer.last_name}`);
   } catch (err) {
     console.error('Błąd kopiowania do schowka:', err);
-    
+
     // Fallback dla starszych przeglądarek (jeśli API Clipboard by nie zadziałało)
     prompt("Twój link do planu (skopiuj ręcznie - Ctrl+C):", url);
   }
