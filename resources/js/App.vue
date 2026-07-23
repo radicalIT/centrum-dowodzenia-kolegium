@@ -125,10 +125,36 @@ const selectedSemesterId = ref('');
 const fetchSemesters = async () => {
   try {
     const response = await axios.get('/api/semesters');
-    semesters.value = response.data;
+    semesters.value = response.data.sort((b, a) => new Date(b.start_date) - new Date(a.start_date));
     
     if (semesters.value.length > 0) {
-      selectedSemesterId.value = semesters.value[0].id;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Ignorujemy godzinę, liczy się tylko data
+
+      // 1. Sprawdzamy, czy "dziś" znajduje się w trakcie któregoś semestru
+      const activeSemester = semesters.value.find(sem => {
+        const start = new Date(sem.start_date);
+        const end = new Date(sem.end_date);
+        return today >= start && today <= end;
+      });
+
+      if (activeSemester) {
+        selectedSemesterId.value = activeSemester.id;
+      } else {
+        // 2. Jeśli nie ma trwającego semestru, szukamy przyszłych
+        const futureSemesters = semesters.value.filter(sem => {
+          return new Date(sem.start_date) > today;
+        });
+
+        if (futureSemesters.length > 0) {
+          // Sortujemy rosnąco po dacie startu, aby na pierwszym miejscu był ten najbliższy
+          futureSemesters.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+          selectedSemesterId.value = futureSemesters[0].id;
+        } else {
+          // 3. Opcja awaryjna (np. gdy wszystkie semestry są w przeszłości) - wybieramy pierwszy z listy
+          selectedSemesterId.value = semesters.value[0].id;
+        }
+      }
     }
   } catch (error) {
     console.error('Błąd podczas pobierania semestrów:', error);

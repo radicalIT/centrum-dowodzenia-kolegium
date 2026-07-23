@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     // Słowniki (CRUD)
     Route::apiResource('semesters', SemesterController::class);
+    Route::post('/semesters/{semester}/clone', [SemesterController::class, 'clone']);
     Route::apiResource('cohorts', CohortController::class);
     Route::apiResource('lecturers', LecturerController::class);
     Route::apiResource('subjects', SubjectController::class);

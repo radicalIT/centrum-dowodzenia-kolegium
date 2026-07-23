@@ -7,15 +7,22 @@ use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Pobieramy przedmioty od razu z przypisanym wykładowcą i rocznikami
-        return response()->json(Subject::with(['lecturer', 'cohorts'])->get());
+        $query = Subject::with(['lecturer', 'cohorts']);
+
+        // Jeśli frontend prześle semester_id, filtrujemy wyniki
+        if ($request->has('semester_id')) {
+            $query->where('semester_id', $request->semester_id);
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'semester_id' => 'required|exists:semesters,id',
             'name' => 'required|string|max:255',
             'lecturer_id' => 'required|exists:lecturers,id',
             'ects_points' => 'required|numeric',
@@ -40,6 +47,7 @@ class SubjectController extends Controller
     public function update(Request $request, Subject $subject)
     {
         $validated = $request->validate([
+            'semester_id' => 'required|exists:semesters,id',
             'name' => 'required|string|max:255',
             'lecturer_id' => 'required|exists:lecturers,id',
             'ects_points' => 'required|numeric',

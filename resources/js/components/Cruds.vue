@@ -317,7 +317,17 @@
                   class="edit-icon">✎</span></td>
               <td class="editable-cell">{{ item.start_date }} <span class="edit-icon">✎</span></td>
               <td class="editable-cell">{{ item.end_date }} <span class="edit-icon">✎</span></td>
-              <td><button @click.stop="deleteItem('semesters', item.id)" class="btn-danger">Usuń</button></td>
+              <td>
+                <button @click.stop="openCloneModal(item)"
+                  class="btn-secondary text-indigo-600 hover:text-indigo-900 mx-2" title="Klonuj ten semestr">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+                <button @click.stop="deleteItem('semesters', item.id)" class="btn-danger">Usuń</button>
+              </td>
             </template>
           </tr>
         </tbody>
@@ -400,6 +410,56 @@
       </div>
     </div>
 
+    <!-- Modal Klonowania -->
+    <div v-if="showCloneModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+        <h3 class="text-xl font-bold mb-4 text-[var(--color-primary)]">Klonuj Semestr</h3>
+
+        <form @submit.prevent="submitClone">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Rok</label>
+            <input type="number" v-model="cloneForm.year"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Typ</label>
+            <select v-model="cloneForm.term"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required>
+              <option value="fall">Jesienny</option>
+              <option value="spring">Wiosenny</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Data rozpoczęcia</label>
+            <input type="date" v-model="cloneForm.start_date"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Data zakończenia</label>
+            <input type="date" v-model="cloneForm.end_date"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-6">
+            <button type="button" @click="showCloneModal = false"
+              class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">Anuluj</button>
+            <button type="submit"
+              class="px-4 py-2 bg-[var(--color-primary,#5d4037)] text-white rounded-md hover:brightness-90 transition font-medium"
+              :disabled="isCloning">
+              {{ isCloning ? 'Klonowanie...' : 'Sklonuj i skopiuj przedmioty' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 
   <!-- UKRYTY SZABLON PDF DLA WYKŁADOWCY -->
@@ -457,10 +517,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue';
 import axios from 'axios';
 import html2pdf from 'html2pdf.js';
 import SearchableSelect from './SearchableSelect.vue';
+
+const props = defineProps(['semesterId', 'semesterData']);
+
+// Nasłuchuj zmian wybranego semestru z zewnątrz i ładuj dane ponownie
+watch(() => props.semesterId, (newVal) => {
+  if (newVal) {
+    fetchData();
+  }
+});
 
 const activeTab = ref('subjects');
 const showLecturerModal = ref(false);
@@ -503,6 +572,50 @@ const editingId = reactive({ lecturer: null, cohort: null, semester: null, subje
 const editForms = reactive({
   lecturer: {}, cohort: {}, semester: {}, subject: {}
 });
+
+// --- ZMIENNE DO KLONOWANIA ---
+const showCloneModal = ref(false);
+const isCloning = ref(false);
+const cloneOriginalId = ref(null);
+const cloneForm = reactive({
+  year: null,
+  term: 'fall',
+  start_date: '',
+  end_date: ''
+});
+
+// Helper przesuwania daty o 1 rok
+const addOneYear = (dateString) => {
+  if (!dateString) return '';
+  const d = new Date(dateString);
+  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().split('T')[0];
+};
+
+const openCloneModal = (item) => {
+  cloneOriginalId.value = item.id;
+  cloneForm.year = parseInt(item.year) + 1;
+  cloneForm.term = item.term;
+  cloneForm.start_date = addOneYear(item.start_date);
+  cloneForm.end_date = addOneYear(item.end_date);
+  showCloneModal.value = true;
+};
+
+const submitClone = async () => {
+  isCloning.value = true;
+  try {
+    // Odwołujemy się na sztywno do endpointu semestrów
+    await axios.post(`/api/semesters/${cloneOriginalId.value}/clone`, cloneForm);
+    showCloneModal.value = false;
+    fetchData(); // Przeładowanie danych w tabeli
+    alert('Semestr oraz przedmioty zostały pomyślnie sklonowane!');
+  } catch (error) {
+    console.error('Błąd klonowania:', error);
+    alert('Wystąpił błąd podczas klonowania.');
+  } finally {
+    isCloning.value = false;
+  }
+};
 
 const currentSemesterTitle = computed(() => {
   if (!data.semesters || data.semesters.length === 0) return '';
@@ -705,7 +818,7 @@ const fetchData = async () => {
       axios.get('/api/lecturers'),
       axios.get('/api/cohorts'),
       axios.get('/api/semesters'),
-      axios.get('/api/subjects')
+      axios.get(`/api/subjects?semester_id=${props.semesterId}`)
     ]);
     data.lecturers = resLec.data;
     data.cohorts = resCoh.data;
@@ -734,7 +847,15 @@ const cancelEdit = (type) => {
 
 const saveEdit = async (endpoint, type, id) => {
   try {
-    await axios.put(`/api/${endpoint}/${id}`, editForms[type]);
+    // Klonujemy obiekt, aby móc do niego bezpiecznie dopisać brakujące dane
+    const payload = { ...editForms[type] };
+
+    // Jeżeli edytujemy przedmiot, upewnijmy się, że zawiera on ID bieżącego semestru
+    if (type === 'subject') {
+      payload.semester_id = props.semesterId;
+    }
+
+    await axios.put(`/api/${endpoint}/${id}`, payload);
     cancelEdit(type);
     fetchData(); // Przeładowujemy, żeby mieć pewność co do relacji
   } catch (error) {
@@ -819,7 +940,11 @@ const addSemester = async () => {
 };
 
 const addSubject = async () => {
-  await axios.post('/api/subjects', forms.subject);
+  const payload = {
+    ...forms.subject,
+    semester_id: props.semesterId
+  };
+  await axios.post('/api/subjects', payload);
   forms.subject = { name: '', lecturer_id: '', ects_points: '', assessment_form: '', classes_per_semester: '', color: '#ffffff', cohort_ids: [] };
   fetchData();
 };

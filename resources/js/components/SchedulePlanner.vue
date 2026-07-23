@@ -6,6 +6,7 @@
             <div class="planner-header"
                 style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 2rem;">
                 <h2 style="margin: 0; color: var(--color-primary);">Planowanie Semestru</h2>
+                <!-- <h3>Bieżący plan dostępny jest pod adresem: {{ ref(window.location.href) }}/plan-studenta</h3> -->
                 <!-- SFORMATOWANY PRZYCISK EKSPORTU -->
                 <button @click="exportPlannerToPDF"
                     style="background-color: var(--color-secondary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; font-family: var(--font-heading); font-weight: bold; cursor: pointer; transition: filter 0.2s;">
@@ -429,7 +430,7 @@ const subjectOptions = computed(() => {
 
 const fetchInitialData = async () => {
     try {
-        const res = await axios.get('/api/subjects');
+        const res = await axios.get(`/api/subjects?semester_id=${props.semesterId}`);
         subjects.value = res.data;
     } catch (e) { console.error(e); }
 };
@@ -787,7 +788,12 @@ onMounted(() => {
     loadGrid();
 });
 
-watch(() => props.semesterId, () => loadGrid());
+watch(() => props.semesterId, () => {
+    fetchInitialData();
+    loadGrid();
+    
+    selectedSubjectId.value = '';
+});
 
 watch(selectedSubjectId, () => {
     loadGrid();

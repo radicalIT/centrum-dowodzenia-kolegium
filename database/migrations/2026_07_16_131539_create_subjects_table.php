@@ -6,26 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('semester_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->foreignId('lecturer_id')->constrained()->onDelete('cascade');
             $table->float('ects_points');
-            $table->string('assessment_form'); // np. 'exam', 'credit'
+            $table->string('assessment_form'); 
             $table->integer('classes_per_semester');
-            $table->string('color'); // hex lub klasa css
+            $table->string('color'); 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('subjects');

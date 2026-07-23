@@ -140,7 +140,8 @@ const fetchInitialData = async () => {
   try {
     const [lectRes, subjRes] = await Promise.all([
       axios.get('/api/lecturers'),
-      axios.get('/api/subjects')
+      // Dodano parametr filtrowania po semestrze
+      axios.get(`/api/subjects?semester_id=${props.semesterId}`)
     ]);
     lecturers.value = lectRes.data;
     subjects.value = subjRes.data;
@@ -353,7 +354,9 @@ const formatDate = (dateStr) => {
 onMounted(fetchInitialData);
 
 watch(() => props.semesterId, () => {
-  if (selectedLecturerId.value) loadGrid();
+  resetSelection();
+  
+  fetchInitialData();
 });
 </script>
 
